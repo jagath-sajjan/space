@@ -23,28 +23,28 @@
             max-width: 600px;
             width: 100%;
         }
-        h1 {
+        h1, h2 {
             color: #c1440e;
             text-align: center;
         }
-        #weather-data {
+        #weather-data, #static-data {
             margin-top: 20px;
         }
-        .sol-data {
+        .data-section {
             background-color: #f9f9f9;
             border: 1px solid #ddd;
             border-radius: 5px;
             padding: 10px;
             margin-bottom: 10px;
         }
-        .sol-data h2 {
-            margin-top: 0;
-            color: #c1440e;
-        }
         .loading {
             text-align: center;
             font-style: italic;
             color: #666;
+        }
+        .error {
+            color: #d9534f;
+            text-align: center;
         }
     </style>
 </head>
@@ -54,6 +54,7 @@
         <div id="weather-data">
             <p class="loading">Loading Mars weather data...</p>
         </div>
+        <div id="static-data"></div>
     </div>
 
     <script>
@@ -67,7 +68,7 @@
                 displayWeatherData(data);
             } catch (error) {
                 console.error('Error fetching Mars weather data:', error);
-                document.getElementById('weather-data').innerHTML = '<p>Error fetching Mars weather data. Please try again later.</p>';
+                displayError();
             }
         }
 
@@ -77,25 +78,48 @@
 
             const sols = data.sol_keys;
 
-            if (sols.length === 0) {
-                weatherDataElement.innerHTML = '<p>No weather data available at the moment. Please check back later.</p>';
-                return;
+            if (sols && sols.length > 0) {
+                sols.forEach(sol => {
+                    const solData = data[sol];
+                    const solElement = document.createElement('div');
+                    solElement.classList.add('data-section');
+                    solElement.innerHTML = `
+                        <h2>Sol ${sol}</h2>
+                        <p>Average Temperature: ${solData.AT?.av?.toFixed(2) || 'N/A'} °C</p>
+                        <p>High Temperature: ${solData.AT?.mx?.toFixed(2) || 'N/A'} °C</p>
+                        <p>Low Temperature: ${solData.AT?.mn?.toFixed(2) || 'N/A'} °C</p>
+                        <p>Average Wind Speed: ${solData.HWS?.av?.toFixed(2) || 'N/A'} m/s</p>
+                        <p>Average Pressure: ${solData.PRE?.av?.toFixed(2) || 'N/A'} Pa</p>
+                    `;
+                    weatherDataElement.appendChild(solElement);
+                });
+            } else {
+                displayError();
             }
+        }
 
-            sols.forEach(sol => {
-                const solData = data[sol];
-                const solElement = document.createElement('div');
-                solElement.classList.add('sol-data');
-                solElement.innerHTML = `
-                    <h2>Sol ${sol}</h2>
-                    <p>Average Temperature: ${solData.AT?.av?.toFixed(2) || 'N/A'} °C</p>
-                    <p>High Temperature: ${solData.AT?.mx?.toFixed(2) || 'N/A'} °C</p>
-                    <p>Low Temperature: ${solData.AT?.mn?.toFixed(2) || 'N/A'} °C</p>
-                    <p>Average Wind Speed: ${solData.HWS?.av?.toFixed(2) || 'N/A'} m/s</p>
-                    <p>Average Pressure: ${solData.PRE?.av?.toFixed(2) || 'N/A'} Pa</p>
-                `;
-                weatherDataElement.appendChild(solElement);
-            });
+        function displayError() {
+            const weatherDataElement = document.getElementById('weather-data');
+            weatherDataElement.innerHTML = `
+                <p class="error">We're currently unable to fetch the latest Mars weather data. 
+                This could be due to a temporary issue with the InSight lander or data transmission. 
+                We apologize for the inconvenience.</p>
+            `;
+            displayStaticData();
+        }
+
+        function displayStaticData() {
+            const staticDataElement = document.getElementById('static-data');
+            staticDataElement.innerHTML = `
+                <div class="data-section">
+                    <h2>Last Known Data from InSight</h2>
+                    <p>Location: Elysium Planitia (flat, smooth plain near Mars' equator)</p>
+                    <p>Average Temperature Range: -63°C to -17°C</p>
+                    <p>Atmospheric Pressure Range: 700-740 Pa</p>
+                    <p>Wind Speed Range: 2-7 m/s</p>
+                    <p>Note: This data is based on historical measurements and may not reflect current conditions.</p>
+                </div>
+            `;
         }
 
         fetchMarsWeather();
