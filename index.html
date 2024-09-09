@@ -22,11 +22,14 @@
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
+        // NASA API Key
+        const apiKey = 'HJMExqn7Wq9YxlhTuaV65swveM7y1nvvJd8dwbuP';
+
         // Initialize the map
         var map = L.map('map').setView([0, 0], 1);  // Center of the Moon, zoom level 1
 
-        // WMTS Tile Layer for the Moon using NASA's Moon Trek API
-        var moonTiles = L.tileLayer('https://moontrek.jpl.nasa.gov/trektiles/Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm/{z}/{y}/{x}.jpg', {
+        // WMTS Tile Layer for the Moon using NASA's Moon Trek API with an API key
+        var moonTiles = L.tileLayer(`https://moontrek.jpl.nasa.gov/tiles/Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm/{z}/{y}/{x}.jpg?api_key=${apiKey}`, {
             attribution: '&copy; NASA/USGS',
             tileSize: 256,
             minZoom: 0,
