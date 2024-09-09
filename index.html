@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NASA Earth Imagery Map</title>
+    <title>NASA Trek Web Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
         body, html {
@@ -12,8 +12,8 @@
             height: 100%;
         }
         #map {
-            width: 100%;
             height: 100%;
+            width: 100%;
         }
     </style>
 </head>
@@ -22,34 +22,19 @@
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        const map = L.map('map').setView([0, 0], 3);
+        // Initialize the map
+        var map = L.map('map').setView([0, 0], 1);  // Center of the Moon, zoom level 1
 
-        const apiKey = 'HJMExqn7Wq9YxlhTuaV65swveM7y1nvvJd8dwbuP';
-
-        L.tileLayer('https://api.nasa.gov/planetary/earth/imagery?api_key=' + apiKey + '&lon={lon}&lat={lat}&dim=0.025&date=2021-02-01', {
-            attribution: 'Imagery provided by NASA',
-            maxZoom: 8,
-            tms: true
+        // WMTS Tile Layer for the Moon using NASA's Moon Trek API
+        var moonTiles = L.tileLayer('https://moontrek.jpl.nasa.gov/trektiles/Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm/{z}/{y}/{x}.jpg', {
+            attribution: '&copy; NASA/USGS',
+            tileSize: 256,
+            minZoom: 0,
+            maxZoom: 5, // Set max zoom based on available tiles
+            noWrap: true,
         }).addTo(map);
 
-        // Add a scale control
-        L.control.scale().addTo(map);
-
-        // Add a coordinates display
-        const coordsDisplay = L.control({position: 'bottomleft'});
-        coordsDisplay.onAdd = function(map) {
-            const div = L.DomUtil.create('div', 'coords-display');
-            div.innerHTML = 'Lat: 0°, Lon: 0°';
-            return div;
-        };
-        coordsDisplay.addTo(map);
-
-        // Update coordinates on mousemove
-        map.on('mousemove', function(e) {
-            const lat = e.latlng.lat.toFixed(2);
-            const lon = e.latlng.lng.toFixed(2);
-            document.querySelector('.coords-display').innerHTML = `Lat: ${lat}°, Lon: ${lon}°`;
-        });
+        // You can add more tile layers for Mars and Vesta in a similar manner
     </script>
 </body>
 </html>
